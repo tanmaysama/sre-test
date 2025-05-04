@@ -4,6 +4,8 @@ kc logs metrics-app-658b75fb7f-d7r67 -n metrics-ns
 
 # Issue Summary
 
+```
+
 [2025-05-04 03:09:16,109] ERROR in app: Exception on /counter [GET]
 Traceback (most recent call last):
   File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
@@ -31,6 +33,8 @@ Traceback (most recent call last):
 ValueError: empty range in randrange(180, 31)
 10.244.0.6 - - [04/May/2025 03:09:16] "GET /counter HTTP/1.1" 500 -
 
+```
+
 # Where the Error Occurred
 
 This is invalid because random.randint(a, b) expects a <= b. But here, 180 > 30
@@ -41,10 +45,12 @@ This is causing the 500 Internal Server Error
 
 Fix the incorrect random.randint() call by swapping the values so the lower value comes first:
 
-Wrong
+Wrong 
+
 delay = random.randint(180, 30)
 
 Correct
+
 delay = random.randint(30, 180)
 
 
