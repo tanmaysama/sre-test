@@ -1,0 +1,32 @@
+# Manual Steps
+
+# Installed Tools Docker, kc, Kind, Helm
+
+# create kind cluster
+
+$ kind create cluster --name sreassign --config kind-config.yaml
+
+# install nginx controller
+
+$ kc apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
+
+# create namespaces
+
+$ kc create namespace argocd
+$ kc create ns metrics-ns
+
+# install metrics-app 
+
+$ helm diff upgrade --install metrics-app ./metrics-app -n metrics-ns
+
+# install argocd
+
+$ kc apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# configure metrics-app via argocd
+
+$ kc apply -f argocd/argo-app.yaml
+
+
+
+
