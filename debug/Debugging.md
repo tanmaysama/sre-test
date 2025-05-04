@@ -1,11 +1,8 @@
-error found in pod logs
-
+# error found via pod logs
 kc logs metrics-app-658b75fb7f-d7r67 -n metrics-ns
 
 # Issue Summary
-
 ```
-
 [2025-05-04 03:09:16,109] ERROR in app: Exception on /counter [GET]
 Traceback (most recent call last):
   File "/usr/local/lib/python3.12/site-packages/flask/app.py", line 1511, in wsgi_app
@@ -32,36 +29,40 @@ Traceback (most recent call last):
     raise ValueError(f"empty range in randrange({start}, {stop})")
 ValueError: empty range in randrange(180, 31)
 10.244.0.6 - - [04/May/2025 03:09:16] "GET /counter HTTP/1.1" 500 -
-
 ```
 
 # Where the Error Occurred
-
 This is invalid because random.randint(a, b) expects a <= b. But here, 180 > 30
 so Python raises a -- ValueError: empty range in randrange(180, 31)
 This is causing the 500 Internal Server Error
 
 # Suggested Fix
-
 Fix the incorrect random.randint() call by swapping the values so the lower value comes first:
 
-Wrong 
-
+# Wrong 
 delay = random.randint(180, 30)
+![Execption](./counter_execption.png)
 
-Correct
-
+# Correct
 delay = random.randint(30, 180)
-
+![Success](./counter_success.png)
 
 # Limitations
+As bug is coming from application itself it is the responsibility of application owner(development team) to fix the same, as far as infra is concern application stack is up and we can provide application logs pointing to the exact exception.
 
-This bug is embedded in the application image:
+# Below steps can be performed by the development team:
+Fix the issue on the application side
+Trigger CI pipeline (Includes docker image build and push to non-prod registry)
+Deployment and Testing on Dev environment
+Promotion to the QA environment
 
-ghcr.io/cloudraftio/metrics-app:1.0
+# Below steps can be perfomed by QA Team
+Perform QA
+Finally upon successful QA, promting image to Production environment
 
-Since the image is externally hosted and not built locally, we cannot directly patch the bug unless we:
+# Below Steps can be performed by Change Co-ordinator
+Prod CR creation and planning for production deployment
 
-Rebuild and host a custom version of the app.
+# Below steps can be performed by DevOps Team
+Production Deployment Trigger CD pipeline
 
-Ask the original maintainer to patch it.

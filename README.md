@@ -18,13 +18,26 @@ Deploy a containerized app that exposes a `/counter` endpoint using **Helm**, **
 
 ## 🗂️ Project Structure
 
-```text
+```
 .
 ├── metrics-app/           # Helm chart for the app
 ├── argocd/
 │   └── argo-app.yaml      # ArgoCD application manifest
-├── kind/
+├── configs/
 │   └── kind-config.yaml   # KIND cluster config
+│   └── ns.yaml            # namespaces config
+├── debug/
+│   └── Debugging.md       # Root cause analysis and debugging
+│   └── *.png              # screenshots
 ├── bootstrap.sh           # Full cluster + app setup script
-├── RCA.md                 # Root cause analysis and debugging
 ├── README.md              # This file
+```
+## Create the Stack
+```
+./bootstrap.sh
+```
+
+## Clean up the Stack
+```
+kind delete cluster --name sreassign
+```

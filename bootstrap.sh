@@ -9,7 +9,10 @@ set -e
 CLUSTER_NAME="sreassign"
 
 echo "Creating KIND cluster..."
-kind create cluster --name "$CLUSTER_NAME" --config kind/kind-config.yaml
+kind create cluster --name "$CLUSTER_NAME" --config configs/kind-config.yaml
+
+echo "Creating namespaces..."
+kubectl apply -f configs/ns.yaml
 
 echo "Installing NGINX Ingress Controller..."
 kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
@@ -24,18 +27,6 @@ kubectl wait --namespace ingress-nginx \
   --selector=app.kubernetes.io/component=controller \
   --timeout=180s
 
-echo "Creating namespaces..."
-kubectl create namespace argocd || echo "Namespace argocd already exists"
-kubectl create namespace metrics-ns || echo "Namespace metrics-ns already exists"
-
-echo "Installing metrics-app Helm chart..."
-# Ensure helm-diff plugin is installed or fallback to helm upgrade --install
-if helm plugin list | grep -q diff; then
-  helm diff upgrade --install metrics-app ./metrics-app -n metrics-ns
-fi
-
-helm upgrade --install metrics-app ./metrics-app -n metrics-ns
-
 echo "Installing ArgoCD..."
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
@@ -48,5 +39,5 @@ echo "Bootstrapping ArgoCD app for metrics-app..."
 kubectl apply -f argocd/argo-app.yaml
 
 echo "Setup complete. You can now port-forward ArgoCD UI with:"
-echo "kubectl port-forward svc/argocd-server -n argocd 8080:443"
+echo "kubectl port-forward svc/argocd-server -n argocd 8080:443 &"
 echo "kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo"
