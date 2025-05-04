@@ -37,6 +37,9 @@ Deploy a containerized app that exposes a `/counter` endpoint using **Helm**, **
 ./bootstrap.sh
 ```
 
+## Environment Variable Check
+![Success](./env-var-chk.png)
+
 ## Clean up the Stack
 ```
 kind delete cluster --name sreassign
