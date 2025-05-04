@@ -2,7 +2,7 @@ error found in pod logs
 
 kc logs metrics-app-658b75fb7f-d7r67 -n metrics-ns
 
---------------------------------------------------------------------
+# Issue Summary
 
 [2025-05-04 03:09:16,109] ERROR in app: Exception on /counter [GET]
 Traceback (most recent call last):
@@ -31,18 +31,31 @@ Traceback (most recent call last):
 ValueError: empty range in randrange(180, 31)
 10.244.0.6 - - [04/May/2025 03:09:16] "GET /counter HTTP/1.1" 500 -
 
---------------------------------------------------------------------
+# Where the Error Occurred
 
 This is invalid because random.randint(a, b) expects a <= b. But here, 180 > 30
 so Python raises a -- ValueError: empty range in randrange(180, 31)
 This is causing the 500 Internal Server Error
 
-
+# Suggested Fix
 
 Fix the incorrect random.randint() call by swapping the values so the lower value comes first:
 
-# Wrong
+Wrong
 delay = random.randint(180, 30)
 
-# Correct
+Correct
 delay = random.randint(30, 180)
+
+
+# Limitations
+
+This bug is embedded in the application image:
+
+ghcr.io/cloudraftio/metrics-app:1.0
+
+Since the image is externally hosted and not built locally, we cannot directly patch the bug unless we:
+
+Rebuild and host a custom version of the app.
+
+Ask the original maintainer to patch it.
